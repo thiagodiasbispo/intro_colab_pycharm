@@ -1,10 +1,9 @@
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.utils import shuffle
+
 from dataset import get_dataset
 from preprocess import pipeline
-from sklearn.utils import shuffle
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
-from sklearn.preprocessing import StandardScaler
 from word_senti import is_positive, is_negative
 
 RANDOM_STATE = 2021
@@ -31,16 +30,21 @@ def count_negative_words(tokens):
 def vectorize(words_tokens):
     counts = []
     for w in words_tokens:
-        counts.append([len(w), count_positive_words(w), count_negative_words(w)])
+        counts.append([count_positive_words(w), count_negative_words(w)])
     return counts
 
-def vectorizer_pipeline(df):
+def vectorizer_pipeline(df, normalize=False):
     X_train, X_test, y_train, y_test = split_train_test(df)
     X_train_tok = pipeline(X_train)
     X_test_tok = pipeline(X_test)
 
     X_train_counts = vectorize(X_train_tok)
     X_test_counts = vectorize(X_test_tok)
+
+    if normalize:
+        normalizer = StandardScaler()
+        X_train_counts = normalizer.fit_transform(X_train_counts)
+        X_test_counts = normalizer.transform(X_test_counts)
 
     return X_train_counts, X_test_counts, y_train, y_test
 
@@ -50,15 +54,10 @@ def main():
     normalizer = StandardScaler()
     X_train_norm = normalizer.fit_transform(X_train)
     X_test_norm = normalizer.transform(X_test)
-    # print("Médias: ", normalizer.mean_)
 
     clf = LogisticRegression(random_state=RANDOM_STATE)
-    #clf = SVC(random_state=RANDOM_STATE)
-    # clf = RandomForestClassifier(random_state=RANDOM_STATE,
-    #                              n_estimators=5,
-    #                              criterion="entropy", max_features="log2", n_jobs=-1)
-
     clf.fit(X_train_norm, y_train)
+
     print("Intercept", clf.intercept_)
     print("Coef", clf.coef_)
 
