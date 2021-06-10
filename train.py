@@ -50,19 +50,15 @@ def vectorizer_pipeline(df, normalize=False):
 
 def main():
     df = get_dataset()
-    X_train, X_test, y_train, y_test = vectorizer_pipeline(df)
-    normalizer = StandardScaler()
-    X_train_norm = normalizer.fit_transform(X_train)
-    X_test_norm = normalizer.transform(X_test)
-
+    X_train, X_test, y_train, y_test = vectorizer_pipeline(df, normalize=True)
     clf = LogisticRegression(random_state=RANDOM_STATE)
-    clf.fit(X_train_norm, y_train)
+    clf.fit(X_train, y_train)
 
     print("Intercept", clf.intercept_)
     print("Coef", clf.coef_)
 
-    print("Acurácia de treino: ", clf.score(X_train_norm, y_train))
-    print("Acurácia de test: ", clf.score(X_test_norm, y_test))
+    print("Acurácia de treino: ", clf.score(X_train, y_train))
+    print("Acurácia de test: ", clf.score(X_test, y_test))
 
 
 if __name__ == '__main__':
